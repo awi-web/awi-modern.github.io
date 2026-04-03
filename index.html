@@ -407,40 +407,92 @@
     function renderSites() {
       const list = document.getElementById('companySiteList');
       const sites = getUserCollection('sites');
+      list.innerHTML = '';
       if (!sites.length) {
-        list.innerHTML = '<div class="muted-box">Noch keine Webseiten-Projekte angelegt.</div>';
+        const emptyState = document.createElement('div');
+        emptyState.className = 'muted-box';
+        emptyState.textContent = 'Noch keine Webseiten-Projekte angelegt.';
+        list.appendChild(emptyState);
         return;
       }
-      list.innerHTML = sites.map(s => `
-        <div class="item">
-          <div><strong>${s.company}</strong> <span class="badge warn">${s.type}</span></div>
-          <div class="small">Branche: ${s.industry}</div>
-          <div class="small">Features: ${s.features || '—'}</div>
-          <div class="actions">
-            <span class="badge ok">${s.status}</span>
-            <button class="btn danger" onclick="removeCompanySite('${s.id}')">Löschen</button>
-          </div>
-        </div>
-      `).join('');
+      sites.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'item';
+
+        const topRow = document.createElement('div');
+        const company = document.createElement('strong');
+        company.textContent = s.company;
+        const type = document.createElement('span');
+        type.className = 'badge warn';
+        type.textContent = s.type;
+        topRow.append(company, document.createTextNode(' '), type);
+
+        const industry = document.createElement('div');
+        industry.className = 'small';
+        industry.textContent = `Branche: ${s.industry}`;
+
+        const features = document.createElement('div');
+        features.className = 'small';
+        features.textContent = `Features: ${s.features || '—'}`;
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const status = document.createElement('span');
+        status.className = 'badge ok';
+        status.textContent = s.status;
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn danger';
+        removeBtn.textContent = 'Löschen';
+        removeBtn.onclick = () => removeCompanySite(s.id);
+        actions.append(status, removeBtn);
+
+        item.append(topRow, industry, features, actions);
+        list.appendChild(item);
+      });
     }
 
     function renderRequests() {
       const list = document.getElementById('requestList');
       const requests = getUserCollection('requests');
+      list.innerHTML = '';
       if (!requests.length) {
-        list.innerHTML = '<div class="muted-box">Noch keine Kundenwünsche gespeichert.</div>';
+        const emptyState = document.createElement('div');
+        emptyState.className = 'muted-box';
+        emptyState.textContent = 'Noch keine Kundenwünsche gespeichert.';
+        list.appendChild(emptyState);
         return;
       }
-      list.innerHTML = requests.map(r => `
-        <div class="item">
-          <div><strong>${r.title}</strong></div>
-          <div class="small">${r.details}</div>
-          <div class="actions">
-            <span class="badge ${r.state === 'Erledigt' ? 'ok' : 'warn'}">${r.state}</span>
-            ${r.state === 'Offen' ? `<button class="btn secondary" onclick="completeRequest('${r.id}')">Als erledigt markieren</button>` : ''}
-          </div>
-        </div>
-      `).join('');
+      requests.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'item';
+
+        const title = document.createElement('div');
+        const titleStrong = document.createElement('strong');
+        titleStrong.textContent = r.title;
+        title.appendChild(titleStrong);
+
+        const details = document.createElement('div');
+        details.className = 'small';
+        details.textContent = r.details;
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const state = document.createElement('span');
+        state.className = `badge ${r.state === 'Erledigt' ? 'ok' : 'warn'}`;
+        state.textContent = r.state;
+        actions.appendChild(state);
+
+        if (r.state === 'Offen') {
+          const completeBtn = document.createElement('button');
+          completeBtn.className = 'btn secondary';
+          completeBtn.textContent = 'Als erledigt markieren';
+          completeBtn.onclick = () => completeRequest(r.id);
+          actions.appendChild(completeBtn);
+        }
+
+        item.append(title, details, actions);
+        list.appendChild(item);
+      });
     }
 
     function renderKpis() {
